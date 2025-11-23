@@ -342,13 +342,7 @@ function setupEventListeners() {
     // Spotify login
     const loginBtn = document.getElementById('spotify-login');
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            alert('Debug: Button Clicked! Calling loginWithSpotify...');
-            loginWithSpotify();
-        });
-    } else {
-        console.error('Spotify login button not found!');
-        alert('Error: Spotify login button not found!');
+        loginBtn.addEventListener('click', loginWithSpotify);
     }
 
     // Player controls
