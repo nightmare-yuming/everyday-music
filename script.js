@@ -375,165 +375,33 @@ function getFilteredSongs() {
     let songs = [];
 
     const genresToShow = currentFilter.genre === 'all' ? Object.keys(musicDatabase) : [currentFilter.genre];
-    const languagesToShow = currentFilter.language === 'all' ? languages : [currentFilter.language];
+}
 
-    genresToShow.forEach(genre => {
-        languagesToShow.forEach(language => {
-            if (musicDatabase[genre] && musicDatabase[genre][language]) {
-                const genreSongs = musicDatabase[genre][language].map(song => ({
-                    ...song,
-                    genre,
-                    language
-                }));
-                songs = songs.concat(genreSongs);
-            }
-        });
+// Update UI
+document.querySelectorAll('.music-card').forEach(c => c.classList.remove('playing'));
+cardElement.classList.add('playing');
+
+// Search for song on Spotify
+try {
+    const searchQuery = `${song.title} ${song.artist}`;
+    const response = await fetch(`${SPOTIFY_API.search}?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`, {
+        headers: { 'Authorization': `Bearer ${spotifyToken}` }
     });
 
-    // Apply search filter
-    if (searchQuery) {
-        songs = songs.filter(song =>
-            song.title.toLowerCase().includes(searchQuery) ||
-            song.artist.toLowerCase().includes(searchQuery)
-        );
+    const data = await response.json();
+
+    if (data.tracks.items.length > 0) {
+        const track = data.tracks.items[0];
+        await playSpotifyTrack(track.uri);
+        updateNowPlaying(song);
+        document.getElementById('player-bar').classList.add('active');
+    } else {
+        alert('在 Spotify 上找不到此歌曲');
     }
-
-    // Daily rotation based on date
-    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    songs = rotateArray(songs, dayOfYear);
-
-    return songs.slice(0, 50); // Limit to 50 songs
+} catch (error) {
+    console.error('播放錯誤:', error);
+    alert('播放失敗，請稍後再試');
 }
-
-function rotateArray(arr, n) {
-    const len = arr.length;
-    n = n % len;
-    return arr.slice(n).concat(arr.slice(0, n));
-}
-
-function createMusicCard(song, index) {
-    const card = document.createElement('div');
-    card.className = 'music-card';
-    card.style.animationDelay = `${index * 0.05}s`;
-    card.dataset.songTitle = song.title;
-    card.dataset.artist = song.artist;
-
-    card.innerHTML = `
-    <div class="card-header">
-      <span class="genre-badge">${getGenreLabel(song.genre)}</span>
-      <span class="play-icon">▶️</span>
-    </div>
-    <h3 class="song-title">${song.title}</h3>
-    <p class="artist-name">${song.artist}</p>
-    <div class="song-meta">
-      <span class="language-tag">${getLanguageLabel(song.language)}</span>
-      <span>${song.year}</span>
-    </div>
-  `;
-
-    card.addEventListener('click', () => playSong(song, card));
-
-    return card;
-}
-
-function getGenreLabel(genre) {
-    const labels = {
-        pop: '流行', rock: '搖滾', hiphop: '嘻哈', electronic: '電子',
-        rnb: 'R&B', jazz: '爵士', classical: '古典', country: '鄉村',
-        indie: '獨立', kpop: 'K-Pop'
-    };
-    return labels[genre] || genre;
-}
-
-function getLanguageLabel(language) {
-    const labels = {
-        english: '英語', mandarin: '華語', japanese: '日語', korean: '韓語',
-        cantonese: '粵語', spanish: '西班牙語', russian: '俄語'
-    };
-    return labels[language] || language;
-}
-
-// ===== Spotify Integration =====
-function checkSpotifyAuth() {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const token = params.get('access_token');
-
-    if (token) {
-        spotifyToken = token;
-        window.location.hash = '';
-        initializeSpotifyPlayer();
-        document.getElementById('auth-section').style.display = 'none';
-    }
-}
-
-function loginWithSpotify() {
-    const scopes = SPOTIFY_CONFIG.scopes.join(' ');
-    const params = new URLSearchParams({
-        client_id: SPOTIFY_CONFIG.clientId,
-        response_type: 'token',
-        redirect_uri: SPOTIFY_CONFIG.redirectUri,
-        scope: scopes,
-        show_dialog: 'true'
-    });
-
-    const authUrl = `${SPOTIFY_API.authorize}?${params.toString()}`;
-    window.location.href = authUrl;
-}
-
-function initializeSpotifyPlayer() {
-    window.onSpotifyWebPlaybackSDKReady = () => {
-        spotifyPlayer = new Spotify.Player({
-            name: '每日音樂推薦',
-            getOAuthToken: cb => { cb(spotifyToken); },
-            volume: 0.5
-        });
-
-        spotifyPlayer.addListener('ready', ({ device_id }) => {
-            console.log('Spotify Player Ready', device_id);
-        });
-
-        spotifyPlayer.addListener('player_state_changed', state => {
-            if (state) {
-                updatePlayerUI(state);
-            }
-        });
-
-        spotifyPlayer.connect();
-    };
-}
-
-async function playSong(song, cardElement) {
-    if (!spotifyToken) {
-        alert('請先連接 Spotify 帳號');
-        return;
-    }
-
-    // Update UI
-    document.querySelectorAll('.music-card').forEach(c => c.classList.remove('playing'));
-    cardElement.classList.add('playing');
-
-    // Search for song on Spotify
-    try {
-        const searchQuery = `${song.title} ${song.artist}`;
-        const response = await fetch(`${SPOTIFY_API.search}?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`, {
-            headers: { 'Authorization': `Bearer ${spotifyToken}` }
-        });
-
-        const data = await response.json();
-
-        if (data.tracks.items.length > 0) {
-            const track = data.tracks.items[0];
-            await playSpotifyTrack(track.uri);
-            updateNowPlaying(song);
-            document.getElementById('player-bar').classList.add('active');
-        } else {
-            alert('在 Spotify 上找不到此歌曲');
-        }
-    } catch (error) {
-        console.error('播放錯誤:', error);
-        alert('播放失敗，請稍後再試');
-    }
 }
 
 async function playSpotifyTrack(uri) {
