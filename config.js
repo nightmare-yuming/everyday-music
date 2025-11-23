@@ -3,8 +3,8 @@
 // 在 https://developer.spotify.com/dashboard 建立應用程式後取得
 
 const SPOTIFY_CONFIG = {
-  clientId: 'YOUR_CLIENT_ID_HERE', // 請替換為您的 Client ID
-  redirectUri: 'http://localhost:8080', // 本地開發用，部署時請修改
+  clientId: '692826dd411b4436af9fac19e0049268', // 請替換為您的 Client ID
+  redirectUri: 'https://nightmare-yuming.github.io/everyday-music/', // 本地開發用，部署時請修改
   scopes: [
     'streaming',
     'user-read-email',
