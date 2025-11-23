@@ -340,7 +340,16 @@ function setupEventListeners() {
     });
 
     // Spotify login
-    document.getElementById('spotify-login').addEventListener('click', loginWithSpotify);
+    const loginBtn = document.getElementById('spotify-login');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            alert('Debug: Button Clicked! Calling loginWithSpotify...');
+            loginWithSpotify();
+        });
+    } else {
+        console.error('Spotify login button not found!');
+        alert('Error: Spotify login button not found!');
+    }
 
     // Player controls
     document.getElementById('play-pause-btn').addEventListener('click', togglePlayPause);
