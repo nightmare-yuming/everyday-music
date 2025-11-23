@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="每日音樂推薦 - 探索來自世界各地的流行音樂，支援多種語言和曲風">
     <meta name="keywords" content="音樂推薦, 每日音樂, Spotify, 流行音樂, 華語音樂, K-Pop">
     <title>每日音樂推薦 | Daily Music Picks</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Spotify Web Playback SDK -->
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
+
 <body>
     <!-- Header -->
     <header>
@@ -27,7 +31,8 @@
                     <span class="logo-icon">🎵</span>
                     <div>
                         <h1>每日音樂推薦</h1>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Daily Music Picks</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Daily Music
+                            Picks</p>
                     </div>
                 </div>
                 <div class="date-display">
@@ -45,12 +50,7 @@
                 <aside class="sidebar">
                     <!-- Search -->
                     <div class="search-container">
-                        <input 
-                            type="text" 
-                            class="search-input" 
-                            id="search-input"
-                            placeholder="🔍 搜尋歌曲或藝人..."
-                        >
+                        <input type="text" class="search-input" id="search-input" placeholder="🔍 搜尋歌曲或藝人...">
                     </div>
 
                     <!-- Genre Filters -->
@@ -100,12 +100,12 @@
                     <div id="music-grid" class="music-grid">
                         <!-- Music cards will be inserted here by JavaScript -->
                     </div>
-                    
+
                     <!-- Loading State -->
                     <div id="loading-state" class="loading" style="display: none;">
                         載入音樂中
                     </div>
-                    
+
                     <!-- Empty State -->
                     <div id="empty-state" class="empty-state" style="display: none;">
                         <h3>😔 找不到符合的音樂</h3>
@@ -146,6 +146,7 @@
 
     <!-- Scripts -->
     <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
+
 </html>

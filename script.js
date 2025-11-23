@@ -375,6 +375,82 @@ function getFilteredSongs() {
     let songs = [];
 
     const genresToShow = currentFilter.genre === 'all' ? Object.keys(musicDatabase) : [currentFilter.genre];
+    const languagesToShow = currentFilter.language === 'all' ? languages : [currentFilter.language];
+
+    genresToShow.forEach(genre => {
+        languagesToShow.forEach(language => {
+            if (musicDatabase[genre] && musicDatabase[genre][language]) {
+                const genreSongs = musicDatabase[genre][language].map(song => ({
+                    ...song,
+                    genre,
+                    language
+                }));
+                songs = songs.concat(genreSongs);
+            }
+        });
+    });
+
+    // Apply search filter
+    if (searchQuery) {
+        songs = songs.filter(song =>
+            song.title.toLowerCase().includes(searchQuery) ||
+            song.artist.toLowerCase().includes(searchQuery)
+        );
+    }
+
+    // Daily rotation based on date
+    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    songs = rotateArray(songs, dayOfYear);
+
+    return songs.slice(0, 50); // Limit to 50 songs
+}
+
+function rotateArray(arr, n) {
+    const len = arr.length;
+    n = n % len;
+    return arr.slice(n).concat(arr.slice(0, n));
+}
+
+function createMusicCard(song, index) {
+    const card = document.createElement('div');
+    card.className = 'music-card';
+    card.style.animationDelay = `${index * 0.05}s`;
+    card.dataset.songTitle = song.title;
+    card.dataset.artist = song.artist;
+
+    card.innerHTML = `
+    <div class="card-header">
+      <span class="genre-badge">${getGenreLabel(song.genre)}</span>
+      <span class="play-icon">▶️</span>
+    </div>
+    <h3 class="song-title">${song.title}</h3>
+    <p class="artist-name">${song.artist}</p>
+    <div class="song-meta">
+      <span class="language-tag">${getLanguageLabel(song.language)}</span>
+      <span>${song.year}</span>
+    </div>
+  `;
+
+    card.addEventListener('click', () => playSong(song, card));
+
+    return card;
+}
+
+function getGenreLabel(genre) {
+    const labels = {
+        pop: '流行', rock: '搖滾', hiphop: '嘻哈', electronic: '電子',
+        rnb: 'R&B', jazz: '爵士', classical: '古典', country: '鄉村',
+        indie: '獨立', kpop: 'K-Pop'
+    };
+    return labels[genre] || genre;
+}
+
+function getLanguageLabel(language) {
+    const labels = {
+        english: '英語', mandarin: '華語', japanese: '日語', korean: '韓語',
+        cantonese: '粵語', spanish: '西班牙語', russian: '俄語'
+    };
+    return labels[language] || language;
 }
 
 // Update UI
