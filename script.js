@@ -455,33 +455,82 @@ function checkSpotifyAuth() {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const token = params.get('access_token');
+
+    if (token) {
+        spotifyToken = token;
+        window.location.hash = '';
+        initializeSpotifyPlayer();
+        document.getElementById('auth-section').style.display = 'none';
+    }
 }
 
-// Update UI
-document.querySelectorAll('.music-card').forEach(c => c.classList.remove('playing'));
-cardElement.classList.add('playing');
-
-// Search for song on Spotify
-try {
-    const searchQuery = `${song.title} ${song.artist}`;
-    const response = await fetch(`${SPOTIFY_API.search}?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`, {
-        headers: { 'Authorization': `Bearer ${spotifyToken}` }
+function loginWithSpotify() {
+    const scopes = SPOTIFY_CONFIG.scopes.join(' ');
+    const params = new URLSearchParams({
+        client_id: SPOTIFY_CONFIG.clientId,
+        response_type: 'token',
+        redirect_uri: SPOTIFY_CONFIG.redirectUri,
+        scope: scopes,
+        show_dialog: 'true'
     });
 
-    const data = await response.json();
-
-    if (data.tracks.items.length > 0) {
-        const track = data.tracks.items[0];
-        await playSpotifyTrack(track.uri);
-        updateNowPlaying(song);
-        document.getElementById('player-bar').classList.add('active');
-    } else {
-        alert('在 Spotify 上找不到此歌曲');
-    }
-} catch (error) {
-    console.error('播放錯誤:', error);
-    alert('播放失敗，請稍後再試');
+    const authUrl = `${SPOTIFY_API.authorize}?${params.toString()}`;
+    window.location.href = authUrl;
 }
+
+function initializeSpotifyPlayer() {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        spotifyPlayer = new Spotify.Player({
+            name: '每日音樂推薦',
+            getOAuthToken: cb => { cb(spotifyToken); },
+            volume: 0.5
+        });
+
+        spotifyPlayer.addListener('ready', ({ device_id }) => {
+            console.log('Spotify Player Ready', device_id);
+        });
+
+        spotifyPlayer.addListener('player_state_changed', state => {
+            if (state) {
+                updatePlayerUI(state);
+            }
+        });
+
+        spotifyPlayer.connect();
+    };
+}
+
+async function playSong(song, cardElement) {
+    if (!spotifyToken) {
+        alert('請先連接 Spotify 帳號');
+        return;
+    }
+
+    // Update UI
+    document.querySelectorAll('.music-card').forEach(c => c.classList.remove('playing'));
+    cardElement.classList.add('playing');
+
+    // Search for song on Spotify
+    try {
+        const searchQuery = `${song.title} ${song.artist}`;
+        const response = await fetch(`${SPOTIFY_API.search}?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`, {
+            headers: { 'Authorization': `Bearer ${spotifyToken}` }
+        });
+
+        const data = await response.json();
+
+        if (data.tracks.items.length > 0) {
+            const track = data.tracks.items[0];
+            await playSpotifyTrack(track.uri);
+            updateNowPlaying(song);
+            document.getElementById('player-bar').classList.add('active');
+        } else {
+            alert('在 Spotify 上找不到此歌曲');
+        }
+    } catch (error) {
+        console.error('播放錯誤:', error);
+        alert('播放失敗，請稍後再試');
+    }
 }
 
 async function playSpotifyTrack(uri) {
