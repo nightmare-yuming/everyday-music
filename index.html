@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="每日音樂推薦 - 探索來自世界各地的流行音樂，支援多種語言和曲風">
+    <meta name="keywords" content="音樂推薦, 每日音樂, Spotify, 流行音樂, 華語音樂, K-Pop">
+    <title>每日音樂推薦 | Daily Music Picks</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Spotify Web Playback SDK -->
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🎵</span>
+                    <div>
+                        <h1>每日音樂推薦</h1>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Daily Music Picks</p>
+                    </div>
+                </div>
+                <div class="date-display">
+                    <span id="current-date">載入中...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="main-layout">
+                <!-- Sidebar Filters -->
+                <aside class="sidebar">
+                    <!-- Search -->
+                    <div class="search-container">
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="search-input"
+                            placeholder="🔍 搜尋歌曲或藝人..."
+                        >
+                    </div>
+
+                    <!-- Genre Filters -->
+                    <div class="filter-section">
+                        <h3>🎸 曲風</h3>
+                        <div class="filter-options" id="genre-filters">
+                            <button class="filter-btn active" data-genre="all">全部</button>
+                            <button class="filter-btn" data-genre="pop">流行 Pop</button>
+                            <button class="filter-btn" data-genre="rock">搖滾 Rock</button>
+                            <button class="filter-btn" data-genre="hiphop">嘻哈 Hip-Hop</button>
+                            <button class="filter-btn" data-genre="electronic">電子 Electronic</button>
+                            <button class="filter-btn" data-genre="rnb">R&B</button>
+                            <button class="filter-btn" data-genre="jazz">爵士 Jazz</button>
+                            <button class="filter-btn" data-genre="classical">古典 Classical</button>
+                            <button class="filter-btn" data-genre="country">鄉村 Country</button>
+                            <button class="filter-btn" data-genre="indie">獨立 Indie</button>
+                            <button class="filter-btn" data-genre="kpop">K-Pop</button>
+                        </div>
+                    </div>
+
+                    <!-- Language Filters -->
+                    <div class="filter-section">
+                        <h3>🌍 語言</h3>
+                        <div class="filter-options" id="language-filters">
+                            <button class="filter-btn active" data-language="all">全部</button>
+                            <button class="filter-btn" data-language="english">英語 English</button>
+                            <button class="filter-btn" data-language="mandarin">華語 Mandarin</button>
+                            <button class="filter-btn" data-language="japanese">日語 Japanese</button>
+                            <button class="filter-btn" data-language="korean">韓語 Korean</button>
+                            <button class="filter-btn" data-language="cantonese">粵語 Cantonese</button>
+                            <button class="filter-btn" data-language="spanish">西班牙語 Spanish</button>
+                            <button class="filter-btn" data-language="russian">俄語 Russian</button>
+                        </div>
+                    </div>
+
+                    <!-- Spotify Auth -->
+                    <div class="filter-section" id="auth-section">
+                        <button class="spotify-login-btn" id="spotify-login">
+                            <span>🎧</span>
+                            <span>連接 Spotify</span>
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Music Grid -->
+                <section class="content-area">
+                    <div id="music-grid" class="music-grid">
+                        <!-- Music cards will be inserted here by JavaScript -->
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-state" class="loading" style="display: none;">
+                        載入音樂中
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <h3>😔 找不到符合的音樂</h3>
+                        <p>試試調整篩選條件或搜尋其他關鍵字</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Player Bar -->
+    <div class="player-bar" id="player-bar">
+        <div class="player-content">
+            <!-- Now Playing -->
+            <div class="now-playing">
+                <div class="now-playing-cover">
+                    <span>🎵</span>
+                </div>
+                <div class="now-playing-info">
+                    <h4 id="player-song-title">未播放</h4>
+                    <p id="player-artist-name">-</p>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="player-controls">
+                <button class="control-btn" id="prev-btn" title="上一首">⏮️</button>
+                <button class="control-btn play-pause" id="play-pause-btn" title="播放/暫停">▶️</button>
+                <button class="control-btn" id="next-btn" title="下一首">⏭️</button>
+            </div>
+
+            <!-- Volume -->
+            <div class="player-volume">
+                <span>🔊</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
