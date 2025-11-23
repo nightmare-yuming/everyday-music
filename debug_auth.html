@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Auth Debug</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1DB954;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Spotify Auth Debug</h1>
+    <p>Please try the following links to test the connection:</p>
+
+    <h3>Test 1: Standard Implicit Grant (Token)</h3>
+    <p>This is what we are currently using.</p>
+    <a id="link1" class="btn" href="#">Connect with Token</a>
+
+    <h3>Test 2: Authorization Code (Code)</h3>
+    <p>Just to see if the error message changes.</p>
+    <a id="link2" class="btn" href="#">Connect with Code</a>
+
+    <script src="config.js"></script>
+    <script>
+        const clientId = SPOTIFY_CONFIG.clientId;
+        const redirectUri = SPOTIFY_CONFIG.redirectUri;
+        const scopes = SPOTIFY_CONFIG.scopes.join(' ');
+
+        // Link 1: Token
+        const url1 = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
+        document.getElementById('link1').href = url1;
+        document.getElementById('link1').innerText += ` (${clientId})`;
+
+        // Link 2: Code
+        const url2 = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
+        document.getElementById('link2').href = url2;
+    </script>
+</body>
+
+</html>
